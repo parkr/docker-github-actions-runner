@@ -8,5 +8,9 @@ linux/*
 !linux/CREDITS.md
 !linux/scripts
 !linux/scripts/*
+!.github
+.github/*
+!.github/workflows
+!.github/workflows/*
 !.gitignore
 !README.md
