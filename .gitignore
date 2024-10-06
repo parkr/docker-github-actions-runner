@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# But not these files...
+!linux
+linux/*
+!linux/Dockerfile
+!linux/CREDITS.md
+!linux/scripts
+!linux/scripts/*
+!.gitignore
