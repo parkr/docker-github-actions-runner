@@ -1,11 +1,11 @@
 FROM ubuntu:20.04
 
-ARG RUNNER_VERSION="2.318.0"
+ARG RUNNER_VERSION="2.319.1"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-  && apt-get install -y curl jq build-essential libssl-dev libffi-dev python3 python3-venv python3-dev python3-pip \
+  && apt-get install -y curl jq git \
   && useradd -m docker \
   && mkdir -p /home/docker/actions-runner
 

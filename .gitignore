@@ -9,3 +9,4 @@ linux/*
 !linux/scripts
 !linux/scripts/*
 !.gitignore
+!README.md
