@@ -9,9 +9,7 @@ defaults:
 
 jobs:
   build-linux:
-    runs-on:
-      - Linux
-      - self-hosted
+    runs-on: [self-hosted, linux]
     steps:
     - uses: actions/checkout@v3
     - name: Set up QEMU
