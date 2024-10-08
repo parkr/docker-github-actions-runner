@@ -49,7 +49,8 @@ jobs:
       with:
         context: ./linux
         push: true
-        tags: Ableytner/docker-github-actions-runner:ubuntu-${{ env.CURRENT_VERSION }}
+        tags: |
+          ghcr.io/${{ github.repository }}:${{ env.CURRENT_VERSION }}-ubuntu
 
   release:
     needs: [tag, build-linux, push-linux]
