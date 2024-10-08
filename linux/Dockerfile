@@ -1,6 +1,11 @@
 FROM ubuntu:22.04
 
-ARG RUNNER_VERSION="2.320.0"
+ARG RUNNER_VERSION="2.320.0" \
+  CONTAINERD_VERSION="1.7.22" \
+  DOCKER_VERSION="27.3.1" \
+  BUILDX_VERSION="0.17.1" \
+  COMPOSE_VERSION="2.29.7" \
+  PROJECT_VERSION="0.1.2"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -27,23 +32,16 @@ RUN apt-get update \
 RUN mkdir -p /home/runner/tmp \
   && cd /home/runner/tmp \
   && BASE_URL="https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/amd64" \
-  && curl -L ${BASE_URL}/containerd.io_1.7.22-1_amd64.deb -o ./containerd.io.deb \
-  && curl -L ${BASE_URL}/docker-ce_27.3.1-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-ce.deb \
-  && curl -L ${BASE_URL}/docker-ce-cli_27.3.1-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-ce-cli.deb \
-  && curl -L ${BASE_URL}/docker-buildx-plugin_0.17.1-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-buildx-plugin.deb \
-  && curl -L ${BASE_URL}/docker-compose-plugin_2.29.7-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-compose-plugin.deb \
+  && curl -L ${BASE_URL}/containerd.io_${CONTAINERD_VERSION}-1_amd64.deb -o ./containerd.io.deb \
+  && curl -L ${BASE_URL}/docker-ce_${DOCKER_VERSION}-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-ce.deb \
+  && curl -L ${BASE_URL}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-ce-cli.deb \
+  && curl -L ${BASE_URL}/docker-buildx-plugin_${BUILDX_VERSION}-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-buildx-plugin.deb \
+  && curl -L ${BASE_URL}/docker-compose-plugin_${COMPOSE_VERSION}-1~ubuntu.22.04~jammy_amd64.deb -o ./docker-compose-plugin.deb \
   && apt-get install -y $(ls *.deb | sed -e "s/^/.\//") \
   && rm $(ls *.deb) \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
   && getent group docker || groupadd docker > /dev/null \
   && usermod -aG docker runner
-
-# install docker
-#RUN mkdir -p /home/runner/tmp \
-#  && cd /home/runner/tmp \
-#  && curl -L https://download.docker.com/linux/static/stable/x86_64/docker-27.3.1.tgz -o docker.tgz \
-#  && tar xzvf docker.tgz -C /usr/local/bin/ \
-#  && rm docker.tgz 
 
 COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
 

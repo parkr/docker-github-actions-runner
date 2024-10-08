@@ -1,0 +1,77 @@
+name: Release tagged linux image
+
+on: [workflow_dispatch]
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  build-linux:
+    uses: ./.github/workflows/define-build-linux-image.yml
+    secrets: inherit
+
+  tag:
+    runs-on: self-hosted
+    outputs:
+      release-tag: ${{ steps.read-tag.outputs.release-tag }}
+    steps:
+    - uses: actions/checkout@v3
+    - name: Read tag from Dockerfile
+      id: read-tag
+      run: |
+        TAG=$(grep 'PROJECT_VERSION' ./Dockerfile | cut -d '=' -f 2 | xargs)
+        echo $TAG
+        echo "release-tag=$(echo $TAG)" >> $GITHUB_OUTPUT
+    - uses: mukunku/tag-exists-action@v1.6.0
+      id: check-tag
+      with: 
+        tag: ${{ steps.read-tag.outputs.release-tag }}
+    - name: Fail if tag exists
+      run: |
+        echo "Tag ${{ steps.read-tag.outputs.release-tag }} exists!"
+        exit 1
+      if: steps.check-tag.outputs.exists == 'true' 
+    - name: Print tag if it doesn't exist
+      run: |
+        echo "Tag ${{ steps.read-tag.outputs.release-tag }} doesn't yet exist and can be created"
+      if: steps.check-tag.outputs.exists == 'false' 
+
+  push:
+    needs: [build-linux, tag]
+    runs-on: [self-hosted, linux]
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v3
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: Ableytner/docker-github-actions-runner:${{ needs.tag.outputs.release-tag }}
+
+  release:
+    needs: [build-linux, tag, push]
+    runs-on: [self-hosted, linux]
+    permissions:
+      contents: write
+    steps:
+    - name: Add body.md
+      run: |
+        touch body.md
+    - name: Echo tag
+      run: |
+        echo "${{ needs.tag.outputs.release-tag }}"
+    - name: Create new release
+      uses: ncipollo/release-action@v1
+      with:
+        bodyFile: "body.md"
+        tag: "${{ needs.tag.outputs.release-tag }}"
+        commit: "main"
+        token: ${{ secrets.GITHUB_TOKEN }}
