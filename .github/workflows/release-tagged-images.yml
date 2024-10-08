@@ -47,6 +47,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
+        context: ./linux
         push: true
         tags: Ableytner/docker-github-actions-runner:ubuntu-${{ env.CURRENT_VERSION }}
 
