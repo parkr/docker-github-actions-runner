@@ -45,7 +45,7 @@ RUN mkdir -p /home/runner/tmp \
 #  && tar xzvf docker.tgz -C /usr/local/bin/ \
 #  && rm docker.tgz 
 
-COPY --chmod=755 scripts/* /
+COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
 
 # switch to the runner user
 USER runner
