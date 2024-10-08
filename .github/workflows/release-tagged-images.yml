@@ -2,6 +2,9 @@ name: Release tagged linux image
 
 on: [workflow_dispatch]
 
+env:
+  CURRENT_VERSION: 0.1.4
+
 defaults:
   run:
     shell: bash
@@ -13,32 +16,23 @@ jobs:
 
   tag:
     runs-on: self-hosted
-    outputs:
-      release-tag: ${{ steps.read-tag.outputs.release-tag }}
     steps:
-    - uses: actions/checkout@v3
-    - name: Read tag from Dockerfile
-      id: read-tag
-      run: |
-        TAG=$(grep 'PROJECT_VERSION' ./Dockerfile | cut -d '=' -f 2 | xargs)
-        echo $TAG
-        echo "release-tag=$(echo $TAG)" >> $GITHUB_OUTPUT
     - uses: mukunku/tag-exists-action@v1.6.0
       id: check-tag
       with: 
-        tag: ${{ steps.read-tag.outputs.release-tag }}
+        tag: ${{ env.CURRENT_VERSION }}
     - name: Fail if tag exists
-      run: |
-        echo "Tag ${{ steps.read-tag.outputs.release-tag }} exists!"
-        exit 1
       if: steps.check-tag.outputs.exists == 'true' 
-    - name: Print tag if it doesn't exist
       run: |
-        echo "Tag ${{ steps.read-tag.outputs.release-tag }} doesn't yet exist and can be created"
+        echo "Tag ${{ env.CURRENT_VERSION }} exists!"
+        exit 1
+    - name: Print tag if it doesn't exist
       if: steps.check-tag.outputs.exists == 'false' 
+      run: |
+        echo "Tag ${{ env.CURRENT_VERSION }} doesn't yet exist and can be created"
 
-  push:
-    needs: [build-linux, tag]
+  push-linux:
+    needs: [tag, build-linux]
     runs-on: [self-hosted, linux]
     permissions:
       contents: write
@@ -54,10 +48,10 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         push: true
-        tags: Ableytner/docker-github-actions-runner:${{ needs.tag.outputs.release-tag }}
+        tags: Ableytner/docker-github-actions-runner:ubuntu-${{ env.CURRENT_VERSION }}
 
   release:
-    needs: [build-linux, tag, push]
+    needs: [tag, build-linux, push-linux]
     runs-on: [self-hosted, linux]
     permissions:
       contents: write
@@ -65,13 +59,10 @@ jobs:
     - name: Add body.md
       run: |
         touch body.md
-    - name: Echo tag
-      run: |
-        echo "${{ needs.tag.outputs.release-tag }}"
     - name: Create new release
       uses: ncipollo/release-action@v1
       with:
         bodyFile: "body.md"
-        tag: "${{ needs.tag.outputs.release-tag }}"
+        tag: "${{ env.CURRENT_VERSION }}"
         commit: "main"
         token: ${{ secrets.GITHUB_TOKEN }}
