@@ -44,13 +44,16 @@ jobs:
         registry: ghcr.io
         username: ${{ github.repository_owner }}
         password: ${{ secrets.GITHUB_TOKEN }}
+    - name: lowercase github.repository
+      run: |
+        echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
     - name: Build and push
       uses: docker/build-push-action@v6
       with:
         context: ./linux
         push: true
         tags: |
-          ghcr.io/${{ github.repository }}:${{ env.CURRENT_VERSION }}-ubuntu
+          ghcr.io/${{ env.IMAGE_NAME }}:${{ env.CURRENT_VERSION }}-ubuntu
 
   release:
     needs: [tag, build-linux, push-linux]
