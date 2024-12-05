@@ -12,6 +12,8 @@ defaults:
 jobs:
   build-linux:
     uses: ./.github/workflows/define-build-linux-image.yml
+    with:
+      upload: true
     secrets: inherit
 
   tag:
