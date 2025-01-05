@@ -6,7 +6,7 @@ ARG RUNNER_VERSION="2.320.0" \
   BUILDX_VERSION="0.17.1" \
   COMPOSE_VERSION="2.29.7"
 
-ARG DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
   && apt-get install -y curl jq sudo \
