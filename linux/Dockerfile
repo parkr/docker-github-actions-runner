@@ -27,6 +27,19 @@ RUN mkdir -p /home/runner/actions-runner \
 RUN apt-get update \
   && apt-get install -y git
 
+# install gh cli
+RUN curl -sL -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
+  | jq -r '.tag_name' \
+  | sed 's/^v//g' \
+  > /tmp/ghcli_vers.txt \
+  && curl -sL -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
+  | jq ".assets[] | select(.name == \"gh_$(cat /tmp/ghcli_vers.txt)_linux_amd64.deb\")" \
+  | jq -r '.browser_download_url' \
+  | curl -sSLo /tmp/ghcli.deb \
+  && rm /tmp/ghcli_vers.txt \
+  && apt-get install -y /tmp/ghcli.deb \
+  && rm /tmp/ghcli.deb
+
 # install docker
 RUN mkdir -p /home/runner/tmp \
   && cd /home/runner/tmp \
