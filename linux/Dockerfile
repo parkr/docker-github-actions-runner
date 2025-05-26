@@ -1,10 +1,10 @@
 FROM ubuntu:22.04
 
-ARG RUNNER_VERSION="2.322.0" \
-  CONTAINERD_VERSION="1.7.25" \
-  DOCKER_VERSION="28.0.1" \
-  BUILDX_VERSION="0.21.1" \
-  COMPOSE_VERSION="2.33.1"
+ARG RUNNER_VERSION="2.324.0" \
+  CONTAINERD_VERSION="1.7.27" \
+  DOCKER_VERSION="28.1.1" \
+  BUILDX_VERSION="0.23.0" \
+  COMPOSE_VERSION="2.35.1"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -23,9 +23,9 @@ RUN mkdir -p /home/runner/actions-runner \
   && chown -R runner /home/runner/actions-runner \
   && ./bin/installdependencies.sh
 
-# install git
+# install simple apt packages
 RUN apt-get update \
-  && apt-get install -y git
+  && apt-get install -y git sshpass
 
 # install gh cli
 RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
