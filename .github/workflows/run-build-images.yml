@@ -12,6 +12,7 @@ jobs:
     secrets: inherit
 
   cleanup:
+    needs: [build-linux]
     runs-on: [self-hosted, linux]
     steps:
     - name: Remove cached docker image
