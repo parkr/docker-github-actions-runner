@@ -10,3 +10,11 @@ jobs:
   build-linux:
     uses: ./.github/workflows/define-build-linux-image.yml
     secrets: inherit
+
+  cleanup:
+    runs-on: [self-hosted, linux]
+    steps:
+    - name: Remove cached docker image
+      if: always()
+      run: |
+        curl -X DELETE http://192.168.0.145:25000/attachments/nikobot/1/image_ubuntu.tar
