@@ -16,13 +16,13 @@ jobs:
         echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
     - name: Build
       run: |
-        docker build -t ${{ env.IMAGE_NAME }}:ubuntu ./linux
+        docker build -t ${{ env.IMAGE_NAME }}:latest-ubuntu ./linux
     - name: Export
       run: |
-        docker save -o /tmp/image_ubuntu.tar ${{ env.IMAGE_NAME }}:ubuntu
+        docker save -o /tmp/image_ubuntu.tar ${{ env.IMAGE_NAME }}:latest-ubuntu
     - name: Cache docker image
       run: |
         curl -X POST -F "file=@/tmp/image_ubuntu.tar" -F "project_id=gha-runner" -F "issue_id=1" http://192.168.0.145:25000/dump
     - name: Remove local image
       run: |
-        docker image rm ${{ env.IMAGE_NAME }}
+        docker image rm ${{ env.IMAGE_NAME }}:latest-ubuntu
