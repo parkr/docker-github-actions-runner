@@ -1,9 +1,10 @@
 name: Release tagged linux image
 
-on: [workflow_dispatch]
-
-env:
-  CURRENT_VERSION: 0.3.1
+on:
+  workflow_dispatch:
+    inputs:
+      version_number:
+        required: true
 
 defaults:
   run:
@@ -20,16 +21,16 @@ jobs:
     - uses: mukunku/tag-exists-action@v1.6.0
       id: check-tag
       with: 
-        tag: ${{ env.CURRENT_VERSION }}
+        tag: ${{ github.event.inputs.version_number }}
     - name: Fail if tag exists
       if: steps.check-tag.outputs.exists == 'true' 
       run: |
-        echo "Tag ${{ env.CURRENT_VERSION }} exists!"
+        echo "Tag ${{ github.event.inputs.version_number }} exists!"
         exit 1
     - name: Print tag if it doesn't exist
       if: steps.check-tag.outputs.exists == 'false' 
       run: |
-        echo "Tag ${{ env.CURRENT_VERSION }} doesn't yet exist and can be created"
+        echo "Tag ${{ github.event.inputs.version_number }} doesn't yet exist and can be created"
 
   push-linux:
     needs: [tag, build-linux]
@@ -55,9 +56,9 @@ jobs:
         docker load --input /tmp/image_ubuntu.tar
     - name: Push
       run: |
-        docker tag ${{ env.IMAGE_NAME }}:ubuntu ghcr.io/${{ env.IMAGE_NAME }}:${{ env.CURRENT_VERSION }}-ubuntu
-        docker push ghcr.io/${{ env.IMAGE_NAME }}:${{ env.CURRENT_VERSION }}-ubuntu
-        docker tag ghcr.io/${{ env.IMAGE_NAME }}:${{ env.CURRENT_VERSION }}-ubuntu ghcr.io/${{ env.IMAGE_NAME }}:latest-ubuntu
+        docker tag ${{ env.IMAGE_NAME }}:ubuntu ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu
+        docker push ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu
+        docker tag ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu ghcr.io/${{ env.IMAGE_NAME }}:latest-ubuntu
         docker push ghcr.io/${{ env.IMAGE_NAME }}:latest-ubuntu
     - name: Remove local image
       if: always()
@@ -74,13 +75,18 @@ jobs:
     permissions:
       contents: write
     steps:
-    - name: Add body.md
+    - name: Create body.md
+      env:
+        GH_TOKEN: ${{ github.token }}
       run: |
-        touch body.md
+        gh api --method POST -H "Accept: application/vnd.github+json" \
+          "/repos/${GITHUB_REPOSITORY}/releases/generate-notes" \
+          -f tag_name="${{ github.event.inputs.version_number }}" \
+          --jq ".body" \
+          > body.md
     - name: Create new release
       uses: ncipollo/release-action@v1
       with:
-        bodyFile: "body.md"
-        tag: "${{ env.CURRENT_VERSION }}"
-        commit: "main"
+        bodyFile: body.md
+        tag: ${{ github.event.inputs.version_number }}
         token: ${{ secrets.GITHUB_TOKEN }}
