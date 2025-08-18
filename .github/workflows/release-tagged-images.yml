@@ -56,7 +56,7 @@ jobs:
         docker load --input /tmp/image_ubuntu.tar
     - name: Push
       run: |
-        docker tag ${{ env.IMAGE_NAME }}:ubuntu ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu
+        docker tag ${{ env.IMAGE_NAME }}:latest-ubuntu ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu
         docker push ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu
         docker tag ghcr.io/${{ env.IMAGE_NAME }}:${{ github.event.inputs.version_number }}-ubuntu ghcr.io/${{ env.IMAGE_NAME }}:latest-ubuntu
         docker push ghcr.io/${{ env.IMAGE_NAME }}:latest-ubuntu
