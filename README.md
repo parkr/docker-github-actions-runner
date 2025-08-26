@@ -32,7 +32,7 @@ The following environment variables are supported for this image:
 
 To use the provided images, you need to create a new Github access token, which the runner uses to connect to Github.
 To create this token:
-* head to https://github.com/settings/personal-access-tokens/new
+* Go to https://github.com/settings/personal-access-tokens/new
 * Set `Token name` to something descriptive.
 * Set `Expiration` to a reasonable value. Tokens without an expiration date ARE NOT RECOMMENDED!
 * For `Permissions`, under `Repositories` you need to add `Administration` and select Read and Write mode.
@@ -75,3 +75,10 @@ To stop the containers:
 ```bash
 docker compose down
 ```
+
+Logs should show why something is broken.
+
+To confirm it's working, go to
+`github.com/<owner>/<repo>/settings/actions/runners` and you should see
+your 2 new runners. If you need more runners, modify the
+docker-compose.yaml file.
