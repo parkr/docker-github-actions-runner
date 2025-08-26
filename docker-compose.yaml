@@ -1,4 +1,23 @@
 services:
+  tunnel:
+    image: docker.io/qmcgaw/gluetun
+    networks:
+    - runner_net
+    env_file:
+    - "tunnel.env"
+    privileged: true
+    cap_add:
+    - NET_ADMIN
+    deploy:
+      mode: global
+    healthcheck:
+      test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+
   runner:
     # Instead of
     # image: ghcr.io/ableytner/docker-github-actions-runner:latest-ubuntu
@@ -7,7 +26,10 @@ services:
     restart: unless-stopped
     env_file: .env
     privileged: true
-    networks: [runner_net]
+    depends_on:
+      tunnel:
+        condition: service_healthy
+    network_mode: service:tunnel
     deploy:
       mode: replicated
       replicas: 2

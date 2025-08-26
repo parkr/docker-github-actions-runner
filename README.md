@@ -53,9 +53,27 @@ To add the runner to a repository within an Github organization you own, follow 
 
 ### Organization-level token generation
 
+```
+$ vim tunnel.env # set these too
+$ vim .env # set these variables
+```
+
+The `.env` variables are:
+
 To add the runner to an Github organization you own, follow the steps above, but be sure to:
 * select your organization as the resource owner
 * For `Permissions`, under `Organizations` you need to add `Administration` and `Self-hosted runners` and select Read and Write mode for both.
+
+The `tunnel.env` variables are defined by the `gluetun` docker image.
+
+If you'd like to remove the VPN tunnel, you certainly can. I wanted to
+isolate the runners from my local network at home, so I used a VPN to do
+so. To remove the tunnel:
+
+1. Remove the `tunnel:` configuration entirely from `docker-compose.yaml`
+2. Remove the `depends_on:` configuration from `runner:`
+3. Remove the `network_mode:` configuration from `runner:` and replace it
+   with `networks: [runner_net]`.
 
 ## Usage
 
@@ -82,3 +100,9 @@ To confirm it's working, go to
 `github.com/<owner>/<repo>/settings/actions/runners` and you should see
 your 2 new runners. If you need more runners, modify the
 docker-compose.yaml file.
+
+To turn down, podman likes it when you remove containers:
+
+```bash
+$ podman compose down -v
+```
