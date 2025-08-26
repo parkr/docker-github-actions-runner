@@ -1,19 +1,22 @@
 services:
-  runner-myrepo:
-    image: ghcr.io/ableytner/docker-github-actions-runner:latest-ubuntu
-    runtime: sysbox-runc
-    environment:
-      RUNNER_NAME: runner-ubuntu
-      REPO: myuser/myrepo
-      # if you want to add an organization-level runner instead
-      # ORG: myorganization
-      TOKEN: ${TOKEN}
-      # These are in addition to self-hosted,Linux,<arch>
-      # EXTRA_LABELS: docker,nonroot,example
+  runner:
+    # Instead of
+    # image: ghcr.io/ableytner/docker-github-actions-runner:latest-ubuntu
+    # We simply build the image we want:
+    build: ./linux
+    restart: unless-stopped
+    env_file: .env
+    privileged: true
+    networks: [runner_net]
     deploy:
       mode: replicated
       replicas: 2
       resources:
         limits:
           memory: 1G
-    restart: unless-stopped
+        reservations:
+          memory: 128M
+
+networks:
+  runner_net:
+    dns: 1.1.1.1
