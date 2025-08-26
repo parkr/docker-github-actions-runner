@@ -1,0 +1,21 @@
+services:
+  runner:
+    # Instead of
+    # image: my-image-name
+    # We simply build the image we want:
+    build: ./linux
+    restart: always
+    env_file: .env
+    privileged: true
+    network: runner_net
+    deploy:
+      mode: replicated
+      replicas: 2
+      resources:
+        limits:
+          memory: 600M
+        reservations:
+          memory: 128M
+networks:
+  runner_net:
+    dns: 1.1.1.1
