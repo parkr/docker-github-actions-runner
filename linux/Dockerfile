@@ -5,8 +5,8 @@ ARG RUNNER_VERSION="2.329.0" \
   DOCKER_VERSION="28.5.1" \
   BUILDX_VERSION="0.29.1" \
   COMPOSE_VERSION="2.40.2" \
-  ARCH="amd64" \
-  INSTRUCTION_SET="x64"
+  ARCH="arm64" \
+  INSTRUCTION_SET="arm64"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -36,7 +36,10 @@ RUN apt-get update \
   build-essential \
   jq \
   zip \
-  unzip
+  unzip \
+  libyaml-dev \
+  libgmp-dev \
+  dnsutils
 
 # install gh cli
 RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
@@ -65,6 +68,8 @@ RUN mkdir -p /home/runner/tmp \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
   && getent group docker || groupadd docker > /dev/null \
   && usermod -aG docker runner
+
+COPY --chmod=755 etc/init.d/docker /etc/init.d/docker
 
 COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
 
