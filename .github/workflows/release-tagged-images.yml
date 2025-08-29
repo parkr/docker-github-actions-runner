@@ -63,7 +63,7 @@ jobs:
     - name: Remove local image
       if: always()
       run: |
-        docker image rm ${{ env.IMAGE_NAME }}:latest-ubuntu
+        docker image rm ${{ env.IMAGE_NAME }}
     - name: Remove cached docker image
       if: always()
       run: |

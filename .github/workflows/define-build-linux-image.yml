@@ -25,4 +25,4 @@ jobs:
         curl -X POST -F "file=@/tmp/image_ubuntu.tar" -F "project_id=gha-runner" -F "issue_id=1" http://192.168.0.145:25000/dump
     - name: Remove local image
       run: |
-        docker image rm ${{ env.IMAGE_NAME }}:latest-ubuntu
+        docker image rm ${{ env.IMAGE_NAME }}
