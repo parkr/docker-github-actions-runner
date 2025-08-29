@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o nounset
+
 # [SETUP]
 
 # start docker
@@ -22,15 +24,21 @@ ACCESS_TOKEN=$TOKEN
 
 cd /home/runner/actions-runner
 
+echo "Registering runner..."
 REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
-./config.sh --url https://github.com/${REPO} --token ${REG_TOKEN} --name ${RUNNER_NAME}
+./config.sh \
+    --url https://github.com/${REPO} \
+    --token ${REG_TOKEN} \
+    --name ${RUNNER_NAME} \
+    --unattended \
+    --labels "${EXTRA_LABELS}"
 
 cleanup() {
     echo "Removing runner..."
     # token is only valid for 1h, so it needs to be re-queried
     # https://github.com/actions/runner/discussions/1799#discussioncomment-2747605
     REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
-    ./config.sh remove --token ${REG_TOKEN}
+    ./config.sh remove --token "${REG_TOKEN}"
 }
 
 trap cleanup SIGINT SIGTERM

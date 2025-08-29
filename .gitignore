@@ -14,3 +14,5 @@ linux/*
 !.github/workflows/*
 !.gitignore
 !README.md
+!docker-compose.yml
+!.env.example
