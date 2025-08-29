@@ -31,6 +31,12 @@ Add the following content to `.env`:
 TOKEN='your-new-token-here'
 ```
 
+### Organization-level token generation
+
+If you want to add the runner to a repository within an Github organization you own, follow the steps above, but be sure to:
+* select your organization as the resource owner
+* For `Permissions`, under `Organizations` you need to add `Self-hosted- runners` and select Read and Write mode.
+
 ## Usage
 
 To start the containers, run:
