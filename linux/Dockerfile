@@ -9,7 +9,7 @@ ARG RUNNER_VERSION="2.328.0" \
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl jq sudo \
+  && apt-get install -y curl jq sudo \
   && useradd -m runner \
   && usermod -aG sudo runner \
   && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
