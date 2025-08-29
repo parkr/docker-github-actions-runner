@@ -9,7 +9,7 @@ ARG RUNNER_VERSION="2.328.0" \
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update \
-  && apt-get install -y curl jq sudo \
+  && apt-get install -y --no-install-recommends curl jq sudo \
   && useradd -m runner \
   && usermod -aG sudo runner \
   && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
@@ -25,7 +25,11 @@ RUN mkdir -p /home/runner/actions-runner \
 
 # install simple apt packages
 RUN apt-get update \
-  && apt-get install -y git sshpass
+  && apt-get install -y --no-install-recommends \
+  git \
+  sshpass \
+  lsb-release \
+  && rm -rf /var/lib/apt/lists/*
 
 # install gh cli
 RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
@@ -54,6 +58,8 @@ RUN mkdir -p /home/runner/tmp \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
   && getent group docker || groupadd docker > /dev/null \
   && usermod -aG docker runner
+
+# clean apt cache
 
 COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
 
