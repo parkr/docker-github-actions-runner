@@ -25,11 +25,10 @@ RUN mkdir -p /home/runner/actions-runner \
 
 # install simple apt packages
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
+  && apt-get install -y \
   git \
   sshpass \
-  lsb-release \
-  && rm -rf /var/lib/apt/lists/*
+  lsb-release
 
 # install gh cli
 RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
