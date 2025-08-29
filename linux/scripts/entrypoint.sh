@@ -21,11 +21,18 @@ fi
 RUNNER_NAME=$RUNNER_NAME
 REPO=$REPO
 ACCESS_TOKEN=$TOKEN
+USER=$(echo $REPO | cut -d '/' -f 1)
 
-cd /home/runner/actions-runner
+if [[ $(curl -X GET -H "Accept: application/vnd.github+json" https://api.github.com/users/${USER} | jq .type --raw-output ) == "User" ]]
+    echo "Repository is owned by an user"
+    REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
+else
+    echo "Repository is owned by an organization"
+    REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/orgs/${USER}/actions/runners/registration-token | jq .token --raw-output)
+fi
 
 echo "Registering runner..."
-REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
+cd /home/runner/actions-runner
 ./config.sh \
     --url https://github.com/${REPO} \
     --token ${REG_TOKEN} \
@@ -37,7 +44,13 @@ cleanup() {
     echo "Removing runner..."
     # token is only valid for 1h, so it needs to be re-queried
     # https://github.com/actions/runner/discussions/1799#discussioncomment-2747605
-    REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
+    if [[ $(curl -X GET -H "Accept: application/vnd.github+json" https://api.github.com/users/${USER} | jq .type --raw-output ) == "User" ]]
+        echo "Repository is owned by an user"
+        REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/repos/${REPO}/actions/runners/registration-token | jq .token --raw-output)
+    else
+        echo "Repository is owned by an organization"
+        REG_TOKEN=$(curl -X POST -H "Authorization: token ${ACCESS_TOKEN}" -H "Accept: application/vnd.github+json" https://api.github.com/orgs/${USER}/actions/runners/registration-token | jq .token --raw-output)
+    fi
     ./config.sh remove --token "${REG_TOKEN}"
 }
 
