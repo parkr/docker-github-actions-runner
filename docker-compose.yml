@@ -1,6 +1,5 @@
 services:
   runner-myrepo:
-    hostname: runner-myrepo
     image: ghcr.io/ableytner/docker-github-actions-runner:latest-ubuntu
     runtime: sysbox-runc
     environment:
