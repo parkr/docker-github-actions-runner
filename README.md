@@ -31,11 +31,17 @@ Add the following content to `.env`:
 TOKEN='your-new-token-here'
 ```
 
-### Organization-level token generation
+### Organization repository token generation
 
 If you want to add the runner to a repository within an Github organization you own, follow the steps above, but be sure to:
 * select your organization as the resource owner
 * For `Permissions`, under `Repositories` you need to add `Administration` and select Read and Write mode.
+
+### Organization-level token generation
+
+If you want to add the runner to an Github organization you own, follow the steps above, but be sure to:
+* select your organization as the resource owner
+* For `Permissions`, under `Organizations` you need to add `Administration` and `Self-hosted runners` and select Read and Write mode for both.
 
 ## Usage
 
@@ -55,3 +61,17 @@ To stop the containers:
 ```bash
 docker compose down
 ```
+
+## Environment Variables
+
+The following environment variables are supported for this image:
+
+| name | description | required | example value | default value |
+| --- | --- | --- | --- | --- |
+| REPO | the repository the runner should be added to | yes* | myusername/myrepo | / |
+| ORG | the organization the runner should be added to | yes* | myorganization | / |
+| TOKEN | token for authenticating against the Github API | yes | github_pat_XXX... | / |
+| RUNNER_NAME | the runners' name (the container hostname is always appended) | no | selfhosted-docker-runner | runner-ubuntu |
+| EXTRA_LABELS | any extra labels for the runner | no | docker,nonroot,example | / |
+
+\* only one option can be provided

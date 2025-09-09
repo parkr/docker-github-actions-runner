@@ -5,6 +5,8 @@ services:
     environment:
       RUNNER_NAME: runner-ubuntu
       REPO: myuser/myrepo
+      # if you want to add an organization-level runner instead
+      # ORG: myorganization
       TOKEN: ${TOKEN}
       # These are in addition to self-hosted,Linux,<arch>
       # EXTRA_LABELS: docker,nonroot,example
