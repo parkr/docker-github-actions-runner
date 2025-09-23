@@ -27,7 +27,6 @@ if [[ "$(service docker status)" == *"Docker is running"* ]]; then
 else
     echo "Docker didn't start, status is:"
     echo $(service docker status)
-    exit 1
 fi
 
 # [START]
