@@ -58,7 +58,7 @@ rm token_resp.txt
 ./config.sh \
     --url ${CONFIG_URL} \
     --token ${REG_TOKEN} \
-    --name "${RUNNER_NAME:-"runner-ubuntu"}-$HOSTNAME" \
+    --name "${RUNNER_NAME:-"runner-ubuntu"}-${HOSTNAME}" \
     --unattended \
     --labels "${EXTRA_LABELS:-}"
 

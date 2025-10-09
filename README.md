@@ -6,13 +6,13 @@ This repository contains docker images for self-hosting a github actions runner 
 
 ## Setup
 
-It is reccommended to use a docker-compose.yml file for managing your container. An example file is provided in this repository.
+It is reccommended to use a docker-compose.yaml file for managing your container. An example file is provided in this repository.
 
 Create a new folder somewhere and run the following command:
 ```bash
-wget https://raw.githubusercontent.com/Ableytner/docker-github-actions-runner/refs/heads/main/docker-compose.yml
+wget https://raw.githubusercontent.com/Ableytner/docker-github-actions-runner/refs/heads/main/docker-compose.yaml
 ```
-Then open up the newly created docker-compose.yml file and replace `myuser` / `myrepo` with your Github username / repository name respectively.
+Then open up the newly created docker-compose.yaml file and replace `myuser` / `myrepo` with your Github username / repository name respectively.
 
 ### Token generation
 
@@ -25,7 +25,7 @@ To create this token:
 
 Depending on whether you want to use this token for only one or multiple repositories, choose `All repositories` or `Only select repositories`.
 
-After generating the token, copy its value and create a new file `.env` in the directory where docker-compose.yml resides.
+After generating the token, copy its value and create a new file `.env` in the directory where docker-compose.yaml resides.
 Add the following content to `.env`:
 ```text
 TOKEN='your-new-token-here'
@@ -33,13 +33,13 @@ TOKEN='your-new-token-here'
 
 ### Organization repository token generation
 
-If you want to add the runner to a repository within an Github organization you own, follow the steps above, but be sure to:
+To add the runner to a repository within an Github organization you own, follow the steps above, but be sure to:
 * select your organization as the resource owner
 * For `Permissions`, under `Repositories` you need to add `Administration` and select Read and Write mode.
 
 ### Organization-level token generation
 
-If you want to add the runner to an Github organization you own, follow the steps above, but be sure to:
+To add the runner to an Github organization you own, follow the steps above, but be sure to:
 * select your organization as the resource owner
 * For `Permissions`, under `Organizations` you need to add `Administration` and `Self-hosted runners` and select Read and Write mode for both.
 

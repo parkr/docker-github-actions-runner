@@ -12,7 +12,7 @@ defaults:
 
 jobs:
   build-linux:
-    uses: ./.github/workflows/define-build-linux-image.yml
+    uses: ./.github/workflows/define-build-linux-image.yaml
     secrets: inherit
 
   tag:
