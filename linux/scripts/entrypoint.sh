@@ -22,7 +22,7 @@ fi
 echo "Starting docker..."
 sudo service docker start > /dev/null
 sleep 5
-if [[ $(service docker status) == *"Docker is running"* ]]; then
+if [[ "$(service docker status)" == *"Docker is running"* ]]; then
     echo "Done!"
 else
     echo "Docker didn't start, status is:"
@@ -56,8 +56,8 @@ REG_TOKEN=$(cat token_resp.txt | jq .token --raw-output)
 rm token_resp.txt
 
 ./config.sh \
-    --url ${CONFIG_URL} \
-    --token ${REG_TOKEN} \
+    --url "${CONFIG_URL}" \
+    --token "${REG_TOKEN}" \
     --name "${RUNNER_NAME:-"runner-ubuntu"}-${HOSTNAME}" \
     --unattended \
     --labels "${EXTRA_LABELS:-}"
