@@ -41,4 +41,3 @@ services:
 
 networks:
   runner_net:
-    dns: 1.1.1.1

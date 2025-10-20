@@ -16,7 +16,7 @@ jobs:
         echo "IMAGE_NAME=`echo ${{github.repository}} | tr '[:upper:]' '[:lower:]'`" >>${GITHUB_ENV}
     - name: Build
       run: |
-        docker build -t ${{ env.IMAGE_NAME }}:latest-ubuntu ./linux
+        docker build -t ${{ env.IMAGE_NAME }}:latest-ubuntu --build-arg ARCH=amd64 --build-arg INSTRUCTION_SET=x64 ./linux
     - name: Export
       run: |
         docker save -o /tmp/image_ubuntu.tar ${{ env.IMAGE_NAME }}:latest-ubuntu
