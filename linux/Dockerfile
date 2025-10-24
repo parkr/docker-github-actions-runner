@@ -1,10 +1,10 @@
 FROM ubuntu:22.04
 
-ARG RUNNER_VERSION="2.328.0" \
+ARG RUNNER_VERSION="2.329.0" \
   CONTAINERD_VERSION="1.7.27" \
-  DOCKER_VERSION="28.3.3" \
-  BUILDX_VERSION="0.26.1" \
-  COMPOSE_VERSION="2.39.1" \
+  DOCKER_VERSION="28.5.1" \
+  BUILDX_VERSION="0.29.1" \
+  COMPOSE_VERSION="2.40.2" \
   ARCH="amd64" \
   INSTRUCTION_SET="x64"
 
@@ -33,7 +33,10 @@ RUN apt-get update \
   git \
   sshpass \
   lsb-release \
-  build-essential
+  build-essential \
+  jq \
+  zip \
+  unzip
 
 # install gh cli
 RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
