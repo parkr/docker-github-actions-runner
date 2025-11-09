@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains docker images for self-hosting a github actions runner as a docker container.
+This repository contains docker images for self-hosting a [github actions runner](https://github.com/actions/runner) as a docker container.
 
 ## Setup
 
