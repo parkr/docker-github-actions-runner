@@ -33,9 +33,6 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: ${{ github.ref == 'refs/heads/parkr-changes' }}
           tags: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}
-          build-args: |
-            ARCH=$TARGETARCH
-            INSTRUCTION_SET=${TARGETARCH/amd64/x64}
 
       - name: Show image reference
         run: echo "IMAGE=docker.io/${{ secrets.DOCKERHUB_USERNAME }}/${{ github.event.repository.name }}:${{ github.sha }}"
