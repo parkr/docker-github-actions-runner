@@ -1,19 +1,43 @@
 services:
-  runner-myrepo:
-    image: ghcr.io/ableytner/docker-github-actions-runner:latest-ubuntu
-    runtime: sysbox-runc
-    environment:
-      RUNNER_NAME: runner-ubuntu
-      REPO: myuser/myrepo
-      # if you want to add an organization-level runner instead
-      # ORG: myorganization
-      TOKEN: ${TOKEN}
-      # These are in addition to self-hosted,Linux,<arch>
-      # EXTRA_LABELS: docker,nonroot,example
+  tunnel:
+    image: docker.io/qmcgaw/gluetun
+    networks:
+    - runner_net
+    env_file:
+    - "tunnel.env"
+    privileged: true
+    cap_add:
+    - NET_ADMIN
+    deploy:
+      mode: global
+    healthcheck:
+      test: ["CMD", "/gluetun-entrypoint", "healthcheck"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+      start_interval: 5s
+
+  runner:
+    # Instead of
+    # image: ghcr.io/ableytner/docker-github-actions-runner:latest-ubuntu
+    # We simply build the image we want:
+    build: ./linux
+    restart: unless-stopped
+    env_file: .env
+    privileged: true
+    depends_on:
+      tunnel:
+        condition: service_healthy
+    network_mode: service:tunnel
     deploy:
       mode: replicated
       replicas: 2
       resources:
         limits:
           memory: 1G
-    restart: unless-stopped
+        reservations:
+          memory: 128M
+
+networks:
+  runner_net:

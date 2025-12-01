@@ -2,6 +2,8 @@
 *
 
 # But not these files...
+!docker-compose.yaml
+!env.example
 !linux
 linux/*
 !linux/Dockerfile

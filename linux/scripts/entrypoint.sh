@@ -27,7 +27,6 @@ if [[ "$(service docker status)" == *"Docker is running"* ]]; then
 else
     echo "Docker didn't start, status is:"
     echo $(service docker status)
-    exit 1
 fi
 
 # [START]
@@ -55,6 +54,8 @@ fi
 REG_TOKEN=$(cat token_resp.txt | jq .token --raw-output)
 rm token_resp.txt
 
+echo "Registering runner..."
+
 ./config.sh \
     --url "${CONFIG_URL}" \
     --token "${REG_TOKEN}" \
@@ -66,7 +67,7 @@ cleanup() {
     echo "Removing runner..."
     # token is only valid for 1h, so it needs to be re-queried
     # https://github.com/actions/runner/discussions/1799#discussioncomment-2747605
-    REG_TOKEN=$(curl --fail-with-body -X POST -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" "${REQ_TOKEN_URL}" | jq .token --raw-output)
+    REG_TOKEN=$(curl --fail-with-body -X POST -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" "$REQ_TOKEN_URL" | jq .token --raw-output)
     ./config.sh remove --token "${REG_TOKEN}"
 }
 
