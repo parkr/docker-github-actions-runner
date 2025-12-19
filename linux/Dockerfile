@@ -1,7 +1,7 @@
 FROM ubuntu:22.04
 
 ARG RUNNER_VERSION="2.330.0" \
-  CONTAINERD_VERSION="1.7.29" \
+  CONTAINERD_VERSION="2.2.1" \
   DOCKER_VERSION="29.1.3" \
   BUILDX_VERSION="0.30.1" \
   COMPOSE_VERSION="2.40.3" \
@@ -55,7 +55,7 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
 RUN mkdir -p /home/runner/tmp \
   && cd /home/runner/tmp \
   && BASE_URL="https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/${ARCH}" \
-  && curl -L ${BASE_URL}/containerd.io_${CONTAINERD_VERSION}-1_${ARCH}.deb -o ./containerd.io.deb \
+  && curl -L ${BASE_URL}/containerd.io_${CONTAINERD_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./containerd.io.deb \
   && curl -L ${BASE_URL}/docker-ce_${DOCKER_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-ce.deb \
   && curl -L ${BASE_URL}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-ce-cli.deb \
   && curl -L ${BASE_URL}/docker-buildx-plugin_${BUILDX_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-buildx-plugin.deb \
