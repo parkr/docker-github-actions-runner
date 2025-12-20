@@ -1,7 +1,9 @@
 FROM ubuntu:22.04
 
+# NOTE: CONTAINERD_VERSION needs to stay at 1.7.28 due to:
+# https://github.com/nestybox/sysbox/issues/973
 ARG RUNNER_VERSION="2.330.0" \
-  CONTAINERD_VERSION="2.2.1" \
+  CONTAINERD_VERSION="1.7.28" \
   DOCKER_VERSION="29.1.3" \
   BUILDX_VERSION="0.30.1" \
   COMPOSE_VERSION="2.40.3" \
@@ -36,7 +38,8 @@ RUN apt-get update \
   build-essential \
   jq \
   zip \
-  unzip
+  unzip \
+  wget
 
 # install gh cli
 RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
@@ -66,7 +69,7 @@ RUN mkdir -p /home/runner/tmp \
   && getent group docker || groupadd docker > /dev/null \
   && usermod -aG docker runner
 
-COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
+COPY --chmod=755 scripts/* /
 
 # switch to the runner user
 USER runner
