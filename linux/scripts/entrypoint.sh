@@ -73,4 +73,4 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-./run.sh & wait $!
+./run.sh --disableupdate & wait $!
