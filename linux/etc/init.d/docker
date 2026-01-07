@@ -98,7 +98,7 @@ case "$1" in
 		fail_unless_root
 		docker_pid=$(cat "$DOCKER_SSD_PIDFILE" 2> /dev/null || true)
 		[ -n "$docker_pid" ] \
-			&& ps -p $docker_pid > /dev/null 2>&1 \
+			&& ps -p "$docker_pid" > /dev/null 2>&1 \
 			&& $0 stop
 		$0 start
 		;;
