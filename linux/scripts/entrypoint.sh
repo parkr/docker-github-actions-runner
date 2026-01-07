@@ -54,8 +54,6 @@ fi
 REG_TOKEN=$(cat token_resp.txt | jq .token --raw-output)
 rm token_resp.txt
 
-echo "Registering runner..."
-
 ./config.sh \
     --url "${CONFIG_URL}" \
     --token "${REG_TOKEN}" \
