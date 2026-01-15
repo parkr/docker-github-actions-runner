@@ -59,6 +59,7 @@ rm token_resp.txt
     --token "${REG_TOKEN}" \
     --name "${RUNNER_NAME:-"runner-ubuntu"}-${HOSTNAME}" \
     --unattended \
+    --disableupdate \
     --labels "${EXTRA_LABELS:-}"
 
 cleanup() {
@@ -71,4 +72,4 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM
 
-./run.sh --disableupdate & wait $!
+./run.sh & wait $!
