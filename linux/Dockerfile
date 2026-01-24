@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:24.04
 
 # NOTE: CONTAINERD_VERSION needs to stay at 1.7.28 due to:
 # https://github.com/nestybox/sysbox/issues/973
@@ -67,12 +67,12 @@ RUN mkdir -p /home/runner/tmp \
   && cd /home/runner/tmp \
   && export DERIVED_ARCH="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)" \
   && export ARCH="${ARCH:-$DERIVED_ARCH}" \
-  && BASE_URL="https://download.docker.com/linux/ubuntu/dists/jammy/pool/stable/${ARCH}" \
+  && BASE_URL="https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/${ARCH}" \
   && curl -L ${BASE_URL}/containerd.io_${CONTAINERD_VERSION}-1_${ARCH}.deb -o ./containerd.io.deb \
-  && curl -L ${BASE_URL}/docker-ce_${DOCKER_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-ce.deb \
-  && curl -L ${BASE_URL}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-ce-cli.deb \
-  && curl -L ${BASE_URL}/docker-buildx-plugin_${BUILDX_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-buildx-plugin.deb \
-  && curl -L ${BASE_URL}/docker-compose-plugin_${COMPOSE_VERSION}-1~ubuntu.22.04~jammy_${ARCH}.deb -o ./docker-compose-plugin.deb \
+  && curl -L ${BASE_URL}/docker-ce_${DOCKER_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-ce.deb \
+  && curl -L ${BASE_URL}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-ce-cli.deb \
+  && curl -L ${BASE_URL}/docker-buildx-plugin_${BUILDX_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-buildx-plugin.deb \
+  && curl -L ${BASE_URL}/docker-compose-plugin_${COMPOSE_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-compose-plugin.deb \
   && apt-get install -y $(ls *.deb | sed -e "s/^/.\//") \
   && rm $(ls *.deb) \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
