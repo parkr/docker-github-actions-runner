@@ -1,9 +1,11 @@
 FROM ubuntu:22.04
 
-ARG RUNNER_VERSION="2.330.0" \
+# NOTE: CONTAINERD_VERSION needs to stay at 1.7.28 due to:
+# https://github.com/nestybox/sysbox/issues/973
+ARG RUNNER_VERSION="2.331.0" \
   CONTAINERD_VERSION="1.7.29" \
-  DOCKER_VERSION="29.1.3" \
-  BUILDX_VERSION="0.30.1" \
+  DOCKER_VERSION="29.1.5" \
+  BUILDX_VERSION="0.31.0" \
   COMPOSE_VERSION="2.40.3" \
   ARCH="" \
   INSTRUCTION_SET=""
