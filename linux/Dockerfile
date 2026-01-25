@@ -68,9 +68,9 @@ RUN export DERIVED_ARCH="$(arch)" \
   | jq -r '.browser_download_url' \
   | curl -L $(cat -) -o /tmp/rv.tar.xz \
   && tar -xvf /tmp/rv.tar.xz -C /tmp \
-  && mv /tmp/rv-${ARCH}-unknown-linux-gnu/rv /usr/local/bin/rv \
-  && chmod 755 /usr/local/bin/rv \
-  && rm /tmp/rv.tar.xz
+  && install -m 755 /tmp/rv-${ARCH}-unknown-linux-gnu/rv /usr/local/bin/rv \
+  && rm /tmp/rv.tar.xz \
+  && which rv
 
 # install docker
 RUN mkdir -p /home/runner/tmp \
