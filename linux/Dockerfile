@@ -6,8 +6,7 @@ ARG RUNNER_VERSION="2.330.0" \
   BUILDX_VERSION="0.30.1" \
   COMPOSE_VERSION="2.40.3" \
   ARCH="" \
-  INSTRUCTION_SET="" \
-  RV_VERSION="0.4.3"
+  INSTRUCTION_SET=""
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -62,10 +61,17 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
   && rm /tmp/ghcli.deb
 
 # install rv
-RUN bash -c "curl --proto '=https' \
-  --tlsv1.2 \
-  -LsSf \
-  https://github.com/spinel-coop/rv/releases/download/v${RV_VERSION}/rv-installer.sh | sh"
+RUN export DERIVED_ARCH="$(arch)" \
+  && export ARCH="${ARCH:-$DERIVED_ARCH}" \
+  && curl -L -H "Accept: application/vnd.github+json" "https://api.github.com/repos/spinel-coop/rv/releases/latest" \
+  | jq ".assets[] | select(.name == \"rv-${ARCH}-unknown-linux-gnu.tar.xz\")" \
+  | jq -r '.browser_download_url' \
+  | curl -L $(cat -) -o /tmp/rv.tar.xz \
+  && mkdir -p /tmp/rv \
+  && tar -xvf /tmp/rv.tar.xz -C /tmp/rv \
+  && mv /tmp/rv/rv /usr/local/bin/rv \
+  && chmod 755 /usr/local/bin/rv \
+  && rm /tmp/rv.tar.xz
 
 # install docker
 RUN mkdir -p /home/runner/tmp \
