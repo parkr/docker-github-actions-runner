@@ -62,6 +62,18 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
   && apt-get install -y /tmp/ghcli.deb \
   && rm /tmp/ghcli.deb
 
+# install rv
+RUN export DERIVED_ARCH="$(arch)" \
+  && export ARCH="${ARCH:-$DERIVED_ARCH}" \
+  && curl -L -H "Accept: application/vnd.github+json" "https://api.github.com/repos/spinel-coop/rv/releases/latest" \
+  | jq ".assets[] | select(.name == \"rv-${ARCH}-unknown-linux-gnu.tar.xz\")" \
+  | jq -r '.browser_download_url' \
+  | curl -L $(cat -) -o /tmp/rv.tar.xz \
+  && tar -xvf /tmp/rv.tar.xz -C /tmp \
+  && install -m 755 /tmp/rv-${ARCH}-unknown-linux-gnu/rv /usr/local/bin/rv \
+  && rm /tmp/rv.tar.xz \
+  && which rv
+
 # install docker
 RUN mkdir -p /home/runner/tmp \
   && cd /home/runner/tmp \
