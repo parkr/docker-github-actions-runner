@@ -67,9 +67,8 @@ RUN export DERIVED_ARCH="$(arch)" \
   | jq ".assets[] | select(.name == \"rv-${ARCH}-unknown-linux-gnu.tar.xz\")" \
   | jq -r '.browser_download_url' \
   | curl -L $(cat -) -o /tmp/rv.tar.xz \
-  && mkdir -p /tmp/rv \
-  && tar -xvf /tmp/rv.tar.xz -C /tmp/rv \
-  && mv /tmp/rv/rv /usr/local/bin/rv \
+  && tar -xvf /tmp/rv.tar.xz -C /tmp \
+  && mv /tmp/rv-${ARCH}-unknown-linux-gnu/rv /usr/local/bin/rv \
   && chmod 755 /usr/local/bin/rv \
   && rm /tmp/rv.tar.xz
 
