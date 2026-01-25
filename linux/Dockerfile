@@ -62,10 +62,10 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
   && rm /tmp/ghcli.deb
 
 # install rv
-RUN curl --proto '=https' \
+RUN bash -c "curl --proto '=https' \
   --tlsv1.2 \
   -LsSf \
-  "https://github.com/spinel-coop/rv/releases/download/v${RV_VERSION}/rv-installer.sh" | sh
+  https://github.com/spinel-coop/rv/releases/download/v${RV_VERSION}/rv-installer.sh | sh"
 
 # install docker
 RUN mkdir -p /home/runner/tmp \
