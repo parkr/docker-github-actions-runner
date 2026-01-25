@@ -6,7 +6,8 @@ ARG RUNNER_VERSION="2.330.0" \
   BUILDX_VERSION="0.30.1" \
   COMPOSE_VERSION="2.40.3" \
   ARCH="" \
-  INSTRUCTION_SET=""
+  INSTRUCTION_SET="" \
+  RV_VERSION="0.4.3"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -59,6 +60,12 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
   && rm /tmp/ghcli_vers.txt \
   && apt-get install -y /tmp/ghcli.deb \
   && rm /tmp/ghcli.deb
+
+# install rv
+RUN curl --proto '=https' \
+  --tlsv1.2 \
+  -LsSf \
+  "https://github.com/spinel-coop/rv/releases/download/v${RV_VERSION}/rv-installer.sh" | sh
 
 # install docker
 RUN mkdir -p /home/runner/tmp \
