@@ -26,14 +26,17 @@ if [[ "$(service docker status)" == *"Docker is running"* ]]; then
     echo "Done!"
 else
     echo "Docker didn't start, status is:"
-    echo $(service docker status)
+    service docker status
 fi
 
 # [START]
 
 echo "Registering runner..."
 
-cd /home/runner/actions-runner
+cd /home/runner/actions-runner || {
+    echo "Failed to change directory to /home/runner/actions-runner"
+    exit 1
+}
 
 if [[ -v REPO ]]; then
     REQ_TOKEN_URL=https://api.github.com/repos/${REPO}/actions/runners/registration-token
@@ -43,16 +46,25 @@ else
     CONFIG_URL=https://github.com/${ORG}
 fi
 
-TOKEN_RESP_CODE=$(curl -X POST -w "%{http_code}" -o token_resp.txt -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" "${REQ_TOKEN_URL}")
+# token is only valid for 1h, so it needs to be re-queried
+# https://github.com/actions/runner/discussions/1799#discussioncomment-2747605
+get_reg_token() {
+  local TOKEN_RESP_CODE
+  TOKEN_RESP_CODE=$(curl -X POST -w "%{http_code}" -o token_resp.txt -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" "${REQ_TOKEN_URL}")
 
-if [[ $(echo ${TOKEN_RESP_CODE} | cut -b 1) != 2 ]]; then
+  if [[ $(echo "${TOKEN_RESP_CODE}" | cut -b 1) != 2 ]]; then
     echo "token acquisition failed with code ${TOKEN_RESP_CODE}:"
     cat token_resp.txt
     exit 1
-fi
+  fi
 
-REG_TOKEN=$(cat token_resp.txt | jq .token --raw-output)
-rm token_resp.txt
+  local REG_TOKEN
+  REG_TOKEN=$(cat token_resp.txt | jq .token --raw-output)
+  rm token_resp.txt
+  echo "$REG_TOKEN"
+}
+
+REG_TOKEN=$(get_reg_token)
 
 ./config.sh \
     --url "${CONFIG_URL}" \
@@ -63,10 +75,13 @@ rm token_resp.txt
     --labels "${EXTRA_LABELS:-}"
 
 cleanup() {
+    # Need to tell the runner to cancel the current job
+    local run_sh_pid
+    run_sh_pid=$(pgrep -f run.sh)
+    echo "Stopping runner (pid=$run_sh_pid)..."
+    kill "$run_sh_pid" || true
     echo "Removing runner..."
-    # token is only valid for 1h, so it needs to be re-queried
-    # https://github.com/actions/runner/discussions/1799#discussioncomment-2747605
-    REG_TOKEN=$(curl --fail-with-body -X POST -H "Authorization: token ${TOKEN}" -H "Accept: application/vnd.github+json" "${REQ_TOKEN_URL}" | jq .token --raw-output)
+    REG_TOKEN=$(get_reg_token)
     ./config.sh remove --token "${REG_TOKEN}"
 }
 
