@@ -7,6 +7,7 @@ ARG RUNNER_VERSION="2.331.0" \
   DOCKER_VERSION="29.1.5" \
   BUILDX_VERSION="0.31.0" \
   COMPOSE_VERSION="2.40.3" \
+  RV_VERSION="0.5.0" \
   ARCH="" \
   INSTRUCTION_SET=""
 
@@ -65,7 +66,7 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
 # install rv
 RUN export DERIVED_ARCH="$(arch)" \
   && export ARCH="${ARCH:-$DERIVED_ARCH}" \
-  && curl -L -H "Accept: application/vnd.github+json" "https://api.github.com/repos/spinel-coop/rv/releases/latest" \
+  && curl -L -H "Accept: application/vnd.github+json" "https://api.github.com/repos/spinel-coop/rv/releases/tags/v${RV_VERSION}" \
   | jq ".assets[] | select(.name == \"rv-${ARCH}-unknown-linux-gnu.tar.xz\")" \
   | jq -r '.browser_download_url' \
   | curl -L $(cat -) -o /tmp/rv.tar.xz \
