@@ -72,6 +72,7 @@ RUN export DERIVED_ARCH="$(arch)" \
   | curl -L $(cat -) -o /tmp/rv.tar.xz \
   && tar -xvf /tmp/rv.tar.xz -C /tmp \
   && install -m 755 /tmp/rv-${ARCH}-unknown-linux-gnu/rv /usr/local/bin/rv \
+  && ln -s /usr/local/bin/rv /usr/local/bin/rvx \
   && rm /tmp/rv.tar.xz \
   && which rv
 
