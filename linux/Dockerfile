@@ -16,7 +16,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 RUN apt-get update \
-  && apt-get install -y curl jq sudo \
+  && apt-get install -y curl gosu jq sudo \
   && useradd -m runner \
   && usermod -aG sudo runner \
   && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
@@ -96,8 +96,5 @@ RUN mkdir -p /home/runner/tmp \
 COPY --chmod=755 etc/init.d/docker /etc/init.d/docker
 
 COPY --chmod=755 scripts/entrypoint.sh /entrypoint.sh
-
-# switch to the runner user
-USER runner
 
 ENTRYPOINT ["/entrypoint.sh"]

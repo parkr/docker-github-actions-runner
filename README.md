@@ -25,6 +25,8 @@ The following environment variables are supported for this image:
 | TOKEN | token for authenticating against the Github API | yes | github_pat_XXX... | / |
 | RUNNER_NAME | the runners' name (the container hostname is always appended) | no | selfhosted-docker-runner | runner-ubuntu |
 | EXTRA_LABELS | any extra labels for the runner | no | docker,nonroot,example | / |
+| PUID | user ID the runner process runs as | no | 1500 | 1000 |
+| PGID | group ID the runner process runs as | no | 1500 | 1000 |
 
 \* only one variable can be supplied
 
