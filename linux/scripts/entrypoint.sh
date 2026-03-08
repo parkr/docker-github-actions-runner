@@ -2,6 +2,30 @@
 
 set -o nounset
 
+# [USER SETUP]
+
+# Set the UID and GID for the runner user based on PUID/PGID env vars.
+# Defaults to 1000:1000 if not set.
+PUID=${PUID:-1000}
+PGID=${PGID:-1000}
+
+# Update the runner group GID and user UID if they differ from the requested values.
+# The -o flag allows non-unique UID/GID in case of a conflict with an existing entry.
+OWNERSHIP_CHANGED=0
+if [ "$(id -g runner)" != "${PGID}" ]; then
+    groupmod -o -g "${PGID}" runner
+    OWNERSHIP_CHANGED=1
+fi
+if [ "$(id -u runner)" != "${PUID}" ]; then
+    usermod -o -u "${PUID}" runner
+    OWNERSHIP_CHANGED=1
+fi
+
+# Fix ownership of the runner home directory to the new UID/GID only if it changed
+if [ "${OWNERSHIP_CHANGED}" -eq 1 ]; then
+    chown -R runner:runner /home/runner
+fi
+
 # [VERIFY]
 
 if [[ -v REPO ]] && [[ -v ORG ]]; then
@@ -24,7 +48,7 @@ TOKEN=$(echo "${TOKEN}" | tr -d '\r\n[:space:]')
 
 # start docker
 echo "Starting docker..."
-sudo service docker start > /dev/null
+service docker start > /dev/null
 sleep 5
 if [[ "$(service docker status)" == *"Docker is running"* ]]; then
     echo "Done!"
@@ -70,7 +94,7 @@ get_reg_token() {
 
 REG_TOKEN=$(get_reg_token)
 
-./config.sh \
+gosu runner ./config.sh \
     --url "${CONFIG_URL}" \
     --token "${REG_TOKEN}" \
     --name "${RUNNER_NAME:-"runner-ubuntu"}-${HOSTNAME}" \
@@ -86,9 +110,9 @@ cleanup() {
     kill "$run_sh_pid" || true
     echo "Removing runner..."
     REG_TOKEN=$(get_reg_token)
-    ./config.sh remove --token "${REG_TOKEN}"
+    gosu runner ./config.sh remove --token "${REG_TOKEN}"
 }
 
 trap cleanup SIGINT SIGTERM
 
-./run.sh & wait $!
+gosu runner ./run.sh & wait $!
