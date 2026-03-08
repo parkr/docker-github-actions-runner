@@ -27,7 +27,7 @@ RUN apt-get update \
 RUN mkdir -p /home/runner/actions-runner \
   && export DERIVED_INSTRUCTION_SET="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/x64/)" \
   && export INSTRUCTION_SET="${INSTRUCTION_SET:-$DERIVED_INSTRUCTION_SET}" \
-  && curl -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${INSTRUCTION_SET}-${RUNNER_VERSION}.tar.gz -o /home/runner/actions-runner/actions.tar.gz \
+  && curl -Lf https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${INSTRUCTION_SET}-${RUNNER_VERSION}.tar.gz -o /home/runner/actions-runner/actions.tar.gz \
   && cd /home/runner/actions-runner \
   && tar -xzf actions.tar.gz \
   && rm actions.tar.gz \
@@ -49,16 +49,16 @@ RUN apt-get update \
   dnsutils
 
 # install gh cli
-RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
+RUN curl -Lf -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
   | jq -r '.tag_name' \
   | sed 's/^v//g' \
   > /tmp/ghcli_vers.txt \
   && export DERIVED_ARCH="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)" \
   && export ARCH="${ARCH:-$DERIVED_ARCH}" \
-  && curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
+  && curl -Lf -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
   | jq ".assets[] | select(.name == \"gh_$(cat /tmp/ghcli_vers.txt)_linux_${ARCH}.deb\")" \
   | jq -r '.browser_download_url' \
-  | curl -L $(cat -) -o /tmp/ghcli.deb \
+  | curl -Lf $(cat -) -o /tmp/ghcli.deb \
   && rm /tmp/ghcli_vers.txt \
   && apt-get install -y /tmp/ghcli.deb \
   && rm /tmp/ghcli.deb
@@ -66,10 +66,10 @@ RUN curl -L -H "Accept: application/vnd.github+json" https://api.github.com/repo
 # install rv
 RUN export DERIVED_ARCH="$(arch)" \
   && export ARCH="${ARCH:-$DERIVED_ARCH}" \
-  && curl -L -H "Accept: application/vnd.github+json" "https://api.github.com/repos/spinel-coop/rv/releases/tags/v${RV_VERSION}" \
+  && curl -Lf -H "Accept: application/vnd.github+json" "https://api.github.com/repos/spinel-coop/rv/releases/tags/v${RV_VERSION}" \
   | jq ".assets[] | select(.name == \"rv-${ARCH}-unknown-linux-gnu.tar.xz\")" \
   | jq -r '.browser_download_url' \
-  | curl -L $(cat -) -o /tmp/rv.tar.xz \
+  | curl -Lf $(cat -) -o /tmp/rv.tar.xz \
   && tar -xvf /tmp/rv.tar.xz -C /tmp \
   && install -m 755 /tmp/rv-${ARCH}-unknown-linux-gnu/rv /usr/local/bin/rv \
   && ln -s /usr/local/bin/rv /usr/local/bin/rvx \
@@ -82,11 +82,11 @@ RUN mkdir -p /home/runner/tmp \
   && export DERIVED_ARCH="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)" \
   && export ARCH="${ARCH:-$DERIVED_ARCH}" \
   && BASE_URL="https://download.docker.com/linux/ubuntu/dists/noble/pool/stable/${ARCH}" \
-  && curl -L ${BASE_URL}/containerd.io_${CONTAINERD_VERSION}-1_${ARCH}.deb -o ./containerd.io.deb \
-  && curl -L ${BASE_URL}/docker-ce_${DOCKER_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-ce.deb \
-  && curl -L ${BASE_URL}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-ce-cli.deb \
-  && curl -L ${BASE_URL}/docker-buildx-plugin_${BUILDX_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-buildx-plugin.deb \
-  && curl -L ${BASE_URL}/docker-compose-plugin_${COMPOSE_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-compose-plugin.deb \
+  && curl -Lf ${BASE_URL}/containerd.io_${CONTAINERD_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./containerd.io.deb \
+  && curl -Lf ${BASE_URL}/docker-ce_${DOCKER_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-ce.deb \
+  && curl -Lf ${BASE_URL}/docker-ce-cli_${DOCKER_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-ce-cli.deb \
+  && curl -Lf ${BASE_URL}/docker-buildx-plugin_${BUILDX_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-buildx-plugin.deb \
+  && curl -Lf ${BASE_URL}/docker-compose-plugin_${COMPOSE_VERSION}-1~ubuntu.24.04~noble_${ARCH}.deb -o ./docker-compose-plugin.deb \
   && apt-get install -y $(ls *.deb | sed -e "s/^/.\//") \
   && rm $(ls *.deb) \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
