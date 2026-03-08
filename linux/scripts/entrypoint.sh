@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ -n "$DEBUG" ]; then
+  set -x
+fi
+
 set -o nounset
 
 # [USER SETUP]
