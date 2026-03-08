@@ -14,7 +14,11 @@ if ! [[ -v REPO ]] && ! [[ -v ORG ]]; then
 fi
 if ! [[ -v TOKEN ]]; then
     echo "The TOKEN variable cannot be empty"
+    exit 1
 fi
+
+# Trim any trailing whitespace or newlines from TOKEN
+TOKEN=$(echo "${TOKEN}" | tr -d '\r\n[:space:]')
 
 # [SETUP]
 
@@ -72,7 +76,7 @@ REG_TOKEN=$(get_reg_token)
     --name "${RUNNER_NAME:-"runner-ubuntu"}-${HOSTNAME}" \
     --unattended \
     --disableupdate \
-    --labels "${EXTRA_LABELS:-}"
+    --labels "${EXTRA_LABELS:-}" || { echo "Registration failed"; exit 1; }
 
 cleanup() {
     # Need to tell the runner to cancel the current job
