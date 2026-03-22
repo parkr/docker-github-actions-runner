@@ -8,6 +8,7 @@ ARG RUNNER_VERSION="2.333.0" \
   BUILDX_VERSION="0.32.1" \
   COMPOSE_VERSION="5.1.0" \
   RV_VERSION="0.5.2" \
+  UV_VERSION="0.10.12" \
   ARCH="" \
   INSTRUCTION_SET=""
 
@@ -46,7 +47,11 @@ RUN apt-get update \
   unzip \
   libyaml-dev \
   libgmp-dev \
-  dnsutils
+  dnsutils \
+  python3
+
+# install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | UV_VERSION=${UV_VERSION} UV_INSTALL_DIR=/usr/local/bin sh
 
 # install gh cli
 RUN curl -Lf -H "Accept: application/vnd.github+json" https://api.github.com/repos/cli/cli/releases/latest \
