@@ -2,13 +2,13 @@ FROM ubuntu:24.04
 
 # NOTE: CONTAINERD_VERSION needs to stay at 1.7.29 due to:
 # https://github.com/nestybox/sysbox/issues/973
-ARG RUNNER_VERSION="2.333.0" \
+ARG RUNNER_VERSION="2.333.1" \
   CONTAINERD_VERSION="1.7.29" \
-  DOCKER_VERSION="29.3.0" \
+  DOCKER_VERSION="29.3.1" \
   BUILDX_VERSION="0.32.1" \
-  COMPOSE_VERSION="5.1.0" \
-  RV_VERSION="0.5.2" \
-  UV_VERSION="0.10.12" \
+  COMPOSE_VERSION="5.1.1" \
+  RV_VERSION="0.5.3" \
+  UV_VERSION="0.11.2" \
   ARCH="" \
   INSTRUCTION_SET=""
 
