@@ -95,7 +95,7 @@ RUN mkdir -p /home/runner/tmp \
   && apt-get install -y $(ls *.deb | sed -e "s/^/.\//") \
   && rm $(ls *.deb) \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
-  && getent group docker || groupadd docker > /dev/null \
+  && (getent group docker || groupadd docker > /dev/null) \
   && usermod -aG docker runner
 
 COPY --chmod=755 etc/init.d/docker /etc/init.d/docker
