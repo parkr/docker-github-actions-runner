@@ -50,6 +50,10 @@ RUN apt-get update \
   dnsutils \
   python3
 
+# install node 24
+RUN curl -fsSL --connect-timeout 30 --retry 3 https://deb.nodesource.com/setup_24.x | bash - \
+  && apt-get install -y nodejs
+
 # install uv
 RUN curl -fsSL --connect-timeout 30 --retry 3 https://astral.sh/uv/install.sh | UV_VERSION=${UV_VERSION} UV_INSTALL_DIR=/usr/local/bin sh
 
