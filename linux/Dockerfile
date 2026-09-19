@@ -7,6 +7,8 @@ ARG RUNNER_VERSION="2.337.0" \
   COMPOSE_VERSION="5.2.0" \
   RV_VERSION="0.6.0" \
   UV_VERSION="0.11.25" \
+  COSIGN_VERSION="3.1.3" \
+  GO_VERSION="1.27.1" \
   ARCH="" \
   INSTRUCTION_SET=""
 
@@ -21,6 +23,12 @@ RUN apt-get update \
   && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
   && mkdir /opt/hostedtoolcache \
   && chmod 777 /opt/hostedtoolcache
+
+# AGENT_TOOLSDIRECTORY tells the runner binary where its tool cache lives; it in turn
+# exports RUNNER_TOOL_CACHE (read by actions/setup-go, actions/setup-node, etc.) into
+# every job, so tools pre-installed below are picked up instead of re-downloaded.
+ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache \
+  RUNNER_TOOL_CACHE=/opt/hostedtoolcache
 
 # install github actions runner
 RUN mkdir -p /home/runner/actions-runner \
@@ -51,6 +59,21 @@ RUN apt-get update \
 # install node 24
 RUN curl -fsSL --connect-timeout 30 --retry 3 https://deb.nodesource.com/setup_24.x | bash - \
   && apt-get install -y nodejs
+
+# install go, pre-seeded into the hosted tool cache so actions/setup-go finds it there
+# instead of downloading it (cache layout: $RUNNER_TOOL_CACHE/go/<version>/<arch>[.complete])
+RUN export DERIVED_ARCH="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)" \
+  && export ARCH="${ARCH:-$DERIVED_ARCH}" \
+  && export DERIVED_INSTRUCTION_SET="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/x64/)" \
+  && export INSTRUCTION_SET="${INSTRUCTION_SET:-$DERIVED_INSTRUCTION_SET}" \
+  && GO_CACHE_DIR="/opt/hostedtoolcache/go/${GO_VERSION}/${INSTRUCTION_SET}" \
+  && mkdir -p "${GO_CACHE_DIR}" \
+  && curl -fsSL --connect-timeout 30 --retry 3 https://go.dev/dl/go${GO_VERSION}.linux-${ARCH}.tar.gz -o /tmp/go.tar.gz \
+  && tar -xzf /tmp/go.tar.gz -C "${GO_CACHE_DIR}" --strip-components=1 \
+  && rm /tmp/go.tar.gz \
+  && touch "${GO_CACHE_DIR}.complete" \
+  && chmod -R 777 /opt/hostedtoolcache/go \
+  && "${GO_CACHE_DIR}/bin/go" version
 
 # install uv
 RUN curl -fsSL --connect-timeout 30 --retry 3 https://astral.sh/uv/install.sh | UV_VERSION=${UV_VERSION} UV_INSTALL_DIR=/usr/local/bin sh
@@ -99,6 +122,13 @@ RUN mkdir -p /home/runner/tmp \
   && sed -i 's/ulimit -Hn/# ulimit -Hn/g' /etc/init.d/docker \
   && (getent group docker || groupadd docker > /dev/null) \
   && usermod -aG docker runner
+
+# install cosign, for signing/verifying docker image signatures
+RUN export DERIVED_ARCH="$(arch | sed s/aarch64/arm64/ | sed s/x86_64/amd64/)" \
+  && export ARCH="${ARCH:-$DERIVED_ARCH}" \
+  && curl -fsSL --connect-timeout 30 --retry 3 https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-${ARCH} -o /usr/local/bin/cosign \
+  && chmod +x /usr/local/bin/cosign \
+  && cosign version
 
 COPY --chmod=755 etc/init.d/docker /etc/init.d/docker
 
