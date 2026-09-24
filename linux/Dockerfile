@@ -54,7 +54,9 @@ RUN apt-get update \
   libyaml-dev \
   libgmp-dev \
   dnsutils \
-  python3
+  python3 \
+  rustc \
+  cargo
 
 # install node 24
 RUN curl -fsSL --connect-timeout 30 --retry 3 https://deb.nodesource.com/setup_24.x | bash - \
