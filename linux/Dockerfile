@@ -63,7 +63,11 @@ RUN apt-get update \
   ca-certificates
 
 # install rust toolchain (cargo >= 1.78)
-RUN export RUSTUP_TARGET="$(arch | sed s/aarch64/aarch64-unknown-linux-gnu/ | sed s/x86_64/x86_64-unknown-linux-gnu/)" \
+RUN case "$(arch)" in \
+    x86_64) export RUSTUP_TARGET="x86_64-unknown-linux-gnu" ;; \
+    aarch64) export RUSTUP_TARGET="aarch64-unknown-linux-gnu" ;; \
+    *) echo "unsupported rustup architecture: $(arch)" >&2; exit 1 ;; \
+  esac \
   && export RUSTUP_BASE_URL="https://static.rust-lang.org/rustup/archive/${RUSTUP_INIT_VERSION}/${RUSTUP_TARGET}" \
   && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init" -o /tmp/rustup-init \
   && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init.sha256" -o /tmp/rustup-init.sha256 \
