@@ -11,6 +11,8 @@ ARG RUNNER_VERSION="2.337.0" \
   GO_VERSION="1.27.1" \
   RUSTUP_INIT_VERSION="1.28.2" \
   RUST_TOOLCHAIN_VERSION="1.78.0" \
+  RUSTUP_INIT_SHA256_X86_64="20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c" \
+  RUSTUP_INIT_SHA256_AARCH64="e3853c5a252fca15252d07cb23a1bdd9377a8c6f3efa01531109281ae47f841c" \
   ARCH="" \
   INSTRUCTION_SET=""
 
@@ -64,18 +66,23 @@ RUN apt-get update \
 
 # install rust toolchain (cargo >= 1.78)
 RUN case "$(arch)" in \
-    x86_64) export RUSTUP_TARGET="x86_64-unknown-linux-gnu" ;; \
-    aarch64) export RUSTUP_TARGET="aarch64-unknown-linux-gnu" ;; \
+    x86_64) \
+      export RUSTUP_TARGET="x86_64-unknown-linux-gnu" \
+      export RUSTUP_INIT_SHA256="${RUSTUP_INIT_SHA256_X86_64}" \
+      ;; \
+    aarch64) \
+      export RUSTUP_TARGET="aarch64-unknown-linux-gnu" \
+      export RUSTUP_INIT_SHA256="${RUSTUP_INIT_SHA256_AARCH64}" \
+      ;; \
     *) echo "unsupported rustup architecture: $(arch)" >&2; exit 1 ;; \
   esac \
   && export RUSTUP_BASE_URL="https://static.rust-lang.org/rustup/archive/${RUSTUP_INIT_VERSION}/${RUSTUP_TARGET}" \
   && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init" -o /tmp/rustup-init \
-  && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init.sha256" -o /tmp/rustup-init.sha256 \
-  && (cd /tmp && sha256sum -c rustup-init.sha256) \
+  && printf '%s  %s\n' "${RUSTUP_INIT_SHA256}" "/tmp/rustup-init" | sha256sum -c - \
   && chmod +x /tmp/rustup-init \
   && /tmp/rustup-init -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" --no-modify-path \
   && rustup set auto-self-update disable \
-  && rm -f /tmp/rustup-init /tmp/rustup-init.sha256 \
+  && rm -f /tmp/rustup-init \
   && export CARGO_VERSION="$(cargo --version | awk '{print $2}')" \
   && dpkg --compare-versions "${CARGO_VERSION}" ge "1.78.0" \
   && cargo --version \
