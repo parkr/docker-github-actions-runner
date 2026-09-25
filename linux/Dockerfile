@@ -9,6 +9,7 @@ ARG RUNNER_VERSION="2.337.0" \
   UV_VERSION="0.11.25" \
   COSIGN_VERSION="3.1.3" \
   GO_VERSION="1.27.1" \
+  RUSTUP_INIT_VERSION="1.28.2" \
   RUST_TOOLCHAIN_VERSION="1.78.0" \
   ARCH="" \
   INSTRUCTION_SET=""
@@ -62,7 +63,14 @@ RUN apt-get update \
   ca-certificates
 
 # install rust toolchain (cargo >= 1.78)
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" \
+RUN export RUSTUP_TARGET="$(arch | sed s/aarch64/aarch64-unknown-linux-gnu/ | sed s/x86_64/x86_64-unknown-linux-gnu/)" \
+  && export RUSTUP_BASE_URL="https://static.rust-lang.org/rustup/archive/${RUSTUP_INIT_VERSION}/${RUSTUP_TARGET}" \
+  && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init" -o /tmp/rustup-init \
+  && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init.sha256" -o /tmp/rustup-init.sha256 \
+  && (cd /tmp && sha256sum -c rustup-init.sha256) \
+  && chmod +x /tmp/rustup-init \
+  && /tmp/rustup-init -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" \
+  && rm -f /tmp/rustup-init /tmp/rustup-init.sha256 \
   && export CARGO_VERSION="$(cargo --version | awk '{print $2}')" \
   && dpkg --compare-versions "${CARGO_VERSION}" ge "1.78.0" \
   && cargo --version \
