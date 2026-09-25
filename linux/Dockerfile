@@ -9,6 +9,7 @@ ARG RUNNER_VERSION="2.337.0" \
   UV_VERSION="0.11.25" \
   COSIGN_VERSION="3.1.3" \
   GO_VERSION="1.27.1" \
+  RUST_TOOLCHAIN_VERSION="1.78.0" \
   ARCH="" \
   INSTRUCTION_SET=""
 
@@ -61,7 +62,7 @@ RUN apt-get update \
   ca-certificates
 
 # install rust toolchain (cargo >= 1.78)
-RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable \
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" \
   && export CARGO_VERSION="$(cargo --version | awk '{print $2}')" \
   && dpkg --compare-versions "${CARGO_VERSION}" ge "1.78.0" \
   && cargo --version \
