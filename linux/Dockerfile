@@ -9,6 +9,10 @@ ARG RUNNER_VERSION="2.337.0" \
   UV_VERSION="0.11.25" \
   COSIGN_VERSION="3.1.3" \
   GO_VERSION="1.27.1" \
+  RUSTUP_INIT_VERSION="1.28.2" \
+  RUST_TOOLCHAIN_VERSION="1.78.0" \
+  RUSTUP_INIT_SHA256_X86_64="20a06e644b0d9bd2fbdbfd52d42540bdde820ea7df86e92e533c073da0cdd43c" \
+  RUSTUP_INIT_SHA256_AARCH64="e3853c5a252fca15252d07cb23a1bdd9377a8c6f3efa01531109281ae47f841c" \
   ARCH="" \
   INSTRUCTION_SET=""
 
@@ -28,7 +32,10 @@ RUN apt-get update \
 # exports RUNNER_TOOL_CACHE (read by actions/setup-go, actions/setup-node, etc.) into
 # every job, so tools pre-installed below are picked up instead of re-downloaded.
 ENV AGENT_TOOLSDIRECTORY=/opt/hostedtoolcache \
-  RUNNER_TOOL_CACHE=/opt/hostedtoolcache
+  RUNNER_TOOL_CACHE=/opt/hostedtoolcache \
+  CARGO_HOME=/usr/local/cargo \
+  RUSTUP_HOME=/usr/local/rustup \
+  PATH=/usr/local/cargo/bin:${PATH}
 
 # install github actions runner
 RUN mkdir -p /home/runner/actions-runner \
@@ -55,8 +62,31 @@ RUN apt-get update \
   libgmp-dev \
   dnsutils \
   python3 \
-  rustc \
-  cargo
+  ca-certificates
+
+# install rust toolchain (cargo >= 1.78)
+RUN case "$(arch)" in \
+    x86_64) \
+      export RUSTUP_TARGET="x86_64-unknown-linux-gnu" \
+      export RUSTUP_INIT_SHA256="${RUSTUP_INIT_SHA256_X86_64}" \
+      ;; \
+    aarch64) \
+      export RUSTUP_TARGET="aarch64-unknown-linux-gnu" \
+      export RUSTUP_INIT_SHA256="${RUSTUP_INIT_SHA256_AARCH64}" \
+      ;; \
+    *) echo "unsupported rustup architecture: $(arch)" >&2; exit 1 ;; \
+  esac \
+  && export RUSTUP_BASE_URL="https://static.rust-lang.org/rustup/archive/${RUSTUP_INIT_VERSION}/${RUSTUP_TARGET}" \
+  && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init" -o /tmp/rustup-init \
+  && printf '%s  %s\n' "${RUSTUP_INIT_SHA256}" "/tmp/rustup-init" | sha256sum -c - \
+  && chmod +x /tmp/rustup-init \
+  && /tmp/rustup-init -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" --no-modify-path \
+  && rustup set auto-self-update disable \
+  && rm -f /tmp/rustup-init \
+  && export CARGO_VERSION="$(cargo --version | awk '{print $2}')" \
+  && dpkg --compare-versions "${CARGO_VERSION}" ge "1.78.0" \
+  && cargo --version \
+  && rustc --version
 
 # install node 24
 RUN curl -fsSL --connect-timeout 30 --retry 3 https://deb.nodesource.com/setup_24.x | bash - \
