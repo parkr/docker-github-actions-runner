@@ -73,7 +73,9 @@ RUN case "$(arch)" in \
   && curl -fsSL --connect-timeout 30 --retry 3 "${RUSTUP_BASE_URL}/rustup-init.sha256" -o /tmp/rustup-init.sha256 \
   && (cd /tmp && sha256sum -c rustup-init.sha256) \
   && chmod +x /tmp/rustup-init \
-  && /tmp/rustup-init -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" \
+  && /tmp/rustup-init -y --profile minimal --default-toolchain "${RUST_TOOLCHAIN_VERSION}" --no-modify-path \
+  && rustup set auto-self-update disable \
+  && rustup --version | grep -q " ${RUSTUP_INIT_VERSION} " \
   && rm -f /tmp/rustup-init /tmp/rustup-init.sha256 \
   && export CARGO_VERSION="$(cargo --version | awk '{print $2}')" \
   && dpkg --compare-versions "${CARGO_VERSION}" ge "1.78.0" \
