@@ -55,8 +55,16 @@ RUN apt-get update \
   libgmp-dev \
   dnsutils \
   python3 \
-  rustc \
-  cargo
+  ca-certificates
+
+# install rust toolchain (cargo >= 1.78)
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --profile minimal --default-toolchain stable \
+  && ln -s /root/.cargo/bin/cargo /usr/local/bin/cargo \
+  && ln -s /root/.cargo/bin/rustc /usr/local/bin/rustc \
+  && export CARGO_VERSION="$(cargo --version | awk '{print $2}')" \
+  && dpkg --compare-versions "${CARGO_VERSION}" ge "1.78.0" \
+  && cargo --version \
+  && rustc --version
 
 # install node 24
 RUN curl -fsSL --connect-timeout 30 --retry 3 https://deb.nodesource.com/setup_24.x | bash - \
